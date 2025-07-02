@@ -1,10 +1,7 @@
-# Use the official PHP image with required extensions
 FROM php:8.2-fpm
 
-# Set working directory
-WORKDIR /var/www
+WORKDIR /var/www/html
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpng-dev \
@@ -20,38 +17,17 @@ RUN apt-get update && apt-get install -y \
     sqlite3 \
     libsqlite3-dev
 
-# Install PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy existing application directory contents
-COPY . /var/www
+COPY . /var/www/html
+COPY --chown=www-data:www-data . /var/www/html
+RUN chmod -R 755 /var/www/html
 
-# Copy existing application directory permissions
-COPY --chown=www-data:www-data . /var/www
-
-# Set permissions
-RUN chmod -R 755 /var/www
-
-# Install Laravel dependencies
-RUN composer install
-
-# Set Laravel environment
-COPY .env.example .env
-
-# Copy example env and rename it
 RUN cp .env.example .env
 
-# THEN run composer and artisan
 RUN composer install && php artisan key:generate
 
-
-# Generate app key
-RUN php artisan key:generate
-
-# Expose port 8000 and start the server
 EXPOSE 8000
-
 CMD php artisan serve --host=0.0.0.0 --port=8000
