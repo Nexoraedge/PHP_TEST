@@ -29,5 +29,9 @@ RUN cp .env.example .env
 
 RUN composer install && php artisan key:generate
 
+# Create data directory and empty sqlite file
+RUN mkdir -p /var/www/html/database \
+    && touch /var/www/html/database/database.sqlite
+
 EXPOSE 8000
 CMD php artisan serve --host=0.0.0.0 --port=8000
