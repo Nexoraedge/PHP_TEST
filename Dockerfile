@@ -41,6 +41,13 @@ RUN composer install
 # Set Laravel environment
 COPY .env.example .env
 
+# Copy example env and rename it
+RUN cp .env.example .env
+
+# THEN run composer and artisan
+RUN composer install && php artisan key:generate
+
+
 # Generate app key
 RUN php artisan key:generate
 
